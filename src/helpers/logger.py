@@ -14,7 +14,7 @@ class Logger:
         formatter = logging.Formatter(
             "%(asctime)s - [%(levelname)s] - %(name)s - (%(filename)s).%(funcName)s(%(lineno)d) - %(message)s")
 
-        file_handler = logging.FileHandler(filename=os.path.join(LOGS_PATH, name + ".log"))
+        file_handler = logging.FileHandler(filename=os.path.join(LOGS_PATH, f"{name}.log"))
         file_handler.setLevel(log_level)
         file_handler.setFormatter(formatter)
 
@@ -25,7 +25,6 @@ class Logger:
         self._logger.addHandler(file_handler)
         self._logger.addHandler(stream_handler)
 
-    @property
-    def logger(self):
+    def get_logger(self):
         return self._logger
 

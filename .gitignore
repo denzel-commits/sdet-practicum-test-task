@@ -1,1 +1,7 @@
 .idea
+__pycache__
+/.pytest_cache
+logs
+allure-results
+allure-reports
+tests/__pycache__

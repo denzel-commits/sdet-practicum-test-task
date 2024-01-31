@@ -80,7 +80,7 @@ def browser(request, logger):
 def logger(request):
     log_level = request.config.getoption("--logging_level")
 
-    return Logger(request.node.name, log_level).logger
+    return Logger(request.node.name, log_level).get_logger()
 
 
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
