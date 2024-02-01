@@ -1,5 +1,4 @@
 import os
-
 import allure
 
 from configuration import TEST_DATA_PATH
@@ -8,24 +7,21 @@ from src.pages.student_registration import StudentRegistrationForm
 
 class TestRegistration:
     @allure.title("Test student registration")
-    def test_student_registration(self, browser):
-
-        file = os.path.join(TEST_DATA_PATH, "picture.png")
-
-        # preparations, can be added to setup fixture + another fixture with test data
-        browser.execute_script("$('#fixedban').remove()")
+    def test_student_registration(self, browser, remove_ads, scroll_down, user_data):
 
         StudentRegistrationForm(browser)\
-            .set_first_name("text")\
-            .set_last_name("text")\
-            .set_email("text")\
-            .set_gender_female()\
-            .set_mobile("text") \
-            .set_date_of_birth(date=5, month=1, year=1984) \
-            .set_subjects(["English", "Maths", "Chemistry"]) \
-            .set_picture_file(file) \
-            .set_hobbies_sports()\
-            .set_hobbies_music()\
-            .set_current_address("text, text text, country, city")
-
-        assert True
+            .set_first_name(user_data["firstname"])\
+            .set_last_name(user_data["lastname"])\
+            .set_email(user_data["email"])\
+            .set_gender(user_data["gender"])\
+            .set_mobile(user_data["mobile"]) \
+            .set_date_of_birth(**user_data["birthdate"]) \
+            .set_subjects(user_data["subjects"]) \
+            .set_picture_file(os.path.join(TEST_DATA_PATH, user_data["picture"])) \
+            .set_hobbies(user_data["hobbies"])\
+            .set_current_address(user_data["address"])\
+            .set_state(user_data["state"])\
+            .set_city(user_data["city"])\
+            .click_submit_button()\
+            .assert_modal_title("Thanks for submitting the form") \
+            .assert_table_values(user_data)

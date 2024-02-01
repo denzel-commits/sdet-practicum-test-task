@@ -25,14 +25,27 @@ class BasePage:
             raise AssertionError(f"WebElement {str(locator)} is not visible")
 
     @allure.step
+    def get_element_from_element(self, parent_locator, child_locator):
+        self.logger.info(f"{self.class_name}: Getting visible element {str(child_locator)} "
+                         f"from element {str(parent_locator)}")
+        return self.get_element(parent_locator).find_element(*child_locator)
+
+    @allure.step
+    def get_elements_from_element(self, parent_locator, child_locator):
+        self.logger.info(f"{self.class_name}: Getting all visible elements {str(child_locator)} "
+                         f"from element {str(parent_locator)}")
+        return self.get_element(parent_locator).find_elements(*child_locator)
+
+    @allure.step
     def hover_and_click(self, locator, delay=0.1):
         element = self.get_element(locator)
         self.logger.info(f"{self.class_name}: Hover and click on element {locator}")
         ActionChains(self.browser).move_to_element(element).pause(delay).click().perform()
 
     @allure.step
-    def click(self, element):
-        self.logger.info(f"{self.class_name}: Do click")
+    def click(self, locator):
+        self.logger.info(f"{self.class_name}: Do click on {locator}")
+        element = self.get_element(locator)
         element.click()
 
     @allure.step
@@ -46,6 +59,7 @@ class BasePage:
 
     @allure.step
     def set_field(self, locator, text):
+        self.logger.info(f"Set field {locator} to {text}")
         element = self.get_element(locator)
         element.click()
         element.clear()

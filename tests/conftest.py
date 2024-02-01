@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+import random
 import logging
 
 import pytest
@@ -5,18 +7,60 @@ import allure
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
+
 from src.helpers.logger import Logger
+from src.helpers.utilities import get_random_string, get_random_email, get_random_number, get_random_date
+from test_data.constants import GENDERS, SUBJECTS, STATE_AND_CITY, HOBBIES
 
 
 def pytest_addoption(parser):
     parser.addoption("--browser", choices=["chrome", "firefox"])
     parser.addoption("--base_url", help="Base request URL")
-    parser.addoption("--tolerance", type=int, default=3, help="Timeout value")
+    parser.addoption("--tolerance", type=int, default=5, help="Timeout value")
     parser.addoption("--headless", action="store_true")
     parser.addoption("--logging_level", default="WARNING")
 
 
-# browser/driver fixture
+@pytest.fixture()
+def remove_ads(browser):
+    browser.execute_script("$('#fixedban').remove()")
+    browser.execute_script("$('footer').remove()")
+
+
+@pytest.fixture()
+def scroll_down(browser):
+    browser.execute_script("window.scrollTo(0, document.body.scrollHeight)")
+
+
+@pytest.fixture()
+def user_data():
+
+    start_date = datetime.now() - timedelta(days=365.25 * 100)
+    end_date = datetime.now() - timedelta(days=365.25 * 10)
+
+    random_date = get_random_date(start_date, end_date)
+
+    state = random.choice(tuple(STATE_AND_CITY.keys()))
+    city = random.choice(STATE_AND_CITY[state])
+
+    return {
+        "firstname": get_random_string(),
+        "lastname": get_random_string(),
+        "email": get_random_email(),
+        "gender": random.choice(GENDERS),
+        "mobile": get_random_number(),
+        "birthdate": {"date": random_date.day,
+                      "month": random_date.month,
+                      "year": random_date.year},
+        "picture": "picture.png",
+        "subjects": random.sample(SUBJECTS, k=random.randint(3, len(SUBJECTS))),
+        "hobbies": random.sample(HOBBIES, k=random.randint(1, len(HOBBIES))),
+        "address": get_random_string() + ', ' + get_random_string() + ' ' + get_random_number(3),
+        "state": state,
+        "city": city
+    }
+
+
 @pytest.fixture()
 def browser(request, logger):
     browser = request.config.getoption("--browser")
@@ -45,6 +89,8 @@ def browser(request, logger):
                 browser_options.add_argument("-headless")
 
             driver = webdriver.Firefox(options=browser_options)
+
+            driver.maximize_window()
         case _:
             raise NotImplementedError("Not supported browser name")
 

@@ -1,16 +1,14 @@
 import allure
 from selenium.webdriver.common.by import By
 from src.base_classes.base_page import BasePage
+from src.helpers.utilities import map_user_data
+from src.pages.elements.web_table import WebTableElement
 
 
 class StudentRegistrationForm(BasePage):
     FIRST_NAME_INPUT = (By.ID, "firstName")
     LAST_NAME_INPUT = (By.ID, "lastName")
     EMAIL_INPUT = (By.CSS_SELECTOR, "#userEmail")
-    # //following-sibling::label
-    GENDER_MALE_RADIO = (By.XPATH, "//input[@name='gender' and @value='Male']//following-sibling::label")
-    GENDER_FEMALE_RADIO = (By.XPATH, "//input[@name='gender' and @value='Female']//following-sibling::label")
-    GENDER_OTHER_RADIO = (By.XPATH, "//input[@name='gender' and @value='Other']//following-sibling::label")
 
     MOBILE_INPUT = (By.CSS_SELECTOR, "#userNumber")
 
@@ -18,8 +16,6 @@ class StudentRegistrationForm(BasePage):
 
     DOB_MONTH_SELECT = (By.XPATH, "//div[@class='react-datepicker']//select[@class='react-datepicker__month-select']")
     DOB_YEAR_SELECT = (By.XPATH, "//div[@class='react-datepicker']//select[@class='react-datepicker__year-select']")
-    # DOB_PREV_BUTTON = (By.XPATH, "//div[@class='react-datepicker']//button[contains(@class, 'react-datepicker__navigation--previous')]")
-    # DOB_NEXT_BUTTON = (By.XPATH, "//div[@class='react-datepicker']//button[contains(@class, 'react-datepicker__navigation--next')]")
 
     SUBJECTS_INPUT = (By.CSS_SELECTOR, "#subjectsInput")
 
@@ -34,20 +30,70 @@ class StudentRegistrationForm(BasePage):
     STATE_SELECT = (By.CSS_SELECTOR, "#stateCity-wrapper div#state")
     CITY_SELECT = (By.CSS_SELECTOR, "#stateCity-wrapper div#city")
 
-    # state menu
-    # <div class =" css-26l3qy-menu" > < div class =" css-11unzgr" > < div class =" css-1n7v3ny-option" id="react-select-3-option-0" tabindex="-1" > NCR < / div > < div class =" css-yt9ioa-option" id="react-select-3-option-1" tabindex="-1" > Uttar Pradesh < / div > < div class =" css-yt9ioa-option" id="react-select-3-option-2" tabindex="-1" > Haryana < / div > < div class =" css-yt9ioa-option" id="react-select-3-option-3" tabindex="-1" > Rajasthan < / div > < / div > < / div >
+    SUBMIT_BUTTON = (By.CSS_SELECTOR, "button#submit")
 
-    def _get_date_element(self, date):
-        return self.get_element((By.XPATH,
-                                 f"//div[contains(@class, 'react-datepicker__day')][text()='{date}']"))
+    MODAL_WINDOW_TITLE = (By.XPATH, "//div[contains(@class, 'modal-title')]")
+    MODAL_WINDOW_TABLE = (By.XPATH, "//div[@class='modal-body']//table[contains(@class, 'table')]")
+
+    @allure.step
+    def _get_date_locator(self, date):
+        if date not in range(1, 32):
+            self.browser.logger.error(f"Date should be from 1 to 31, but {date} given")
+            raise ValueError(f"Date should be from 1 to 31, but {date} given")
+
+        return (By.XPATH,
+                f"//div[contains(@class, 'react-datepicker__day')][text()='{date}']")
+
+    @staticmethod
+    def _get_gender_locator(gender):
+        return (By.XPATH,
+                f"//input[@name='gender' and @value='{gender.capitalize()}']//following-sibling::label")
+
+    def _get_hobby_locator(self, hobby):
+        hobbies_map = {
+            "Sports": self.HOBBIES_SPORTS_CHECKBOX,
+            "Reading": self.HOBBIES_READING_CHECKBOX,
+            "Music": self.HOBBIES_MUSIC_CHECKBOX
+        }
+        return hobbies_map[hobby]
+
+    @staticmethod
+    def _get_state_locator(state):
+        return (By.XPATH,
+                f"//div[@class=' css-26l3qy-menu']//div[text()='{state}']")
+
+    @staticmethod
+    def _get_city_locator(city):
+        return (By.XPATH,
+                f"//div[@class=' css-26l3qy-menu']//div[text()='{city}']")
+
+    @allure.step
+    def click_submit_button(self):
+        self.hover_and_click(self.SUBMIT_BUTTON)
+
+        return self
+
+    @allure.step("Set state field to {state}")
+    def set_state(self, state):
+        self.get_element(self.STATE_SELECT).click()
+        self.hover_and_click(self._get_state_locator(state))
+
+        return self
+
+    @allure.step("Set city field to {city}")
+    def set_city(self, city):
+        self.get_element(self.CITY_SELECT).click()
+        self.hover_and_click(self._get_city_locator(city))
+
+        return self
 
     @allure.step("Set birthdate field to {date} {month} {year}")
     def set_date_of_birth(self, date, month, year):
-        self.set_field(self.DOB_DATE_PICKER_INPUT, '')
+        self.hover_and_click(self.DOB_DATE_PICKER_INPUT)
 
         self.set_select_field_by_value(self.DOB_MONTH_SELECT, (month-1))
         self.set_select_field_by_value(self.DOB_YEAR_SELECT, year)
-        self._get_date_element(date).click()
+        self.hover_and_click(self._get_date_locator(date))
 
         return self
 
@@ -69,21 +115,9 @@ class StudentRegistrationForm(BasePage):
 
         return self
 
-    @allure.step("Set gender radio to male")
-    def set_gender_male(self):
-        self.hover_and_click(self.GENDER_MALE_RADIO)
-
-        return self
-
-    @allure.step("Set gender radio to female")
-    def set_gender_female(self):
-        self.hover_and_click(self.GENDER_FEMALE_RADIO)
-
-        return self
-
-    @allure.step("Set gender radio to other")
-    def set_gender_other(self):
-        self.hover_and_click(self.GENDER_OTHER_RADIO)
+    @allure.step("Set gender radio to {gender}")
+    def set_gender(self, gender):
+        self.hover_and_click(self._get_gender_locator(gender))
 
         return self
 
@@ -113,20 +147,25 @@ class StudentRegistrationForm(BasePage):
 
         return self
 
-    @allure.step("Set hobbies to sports")
-    def set_hobbies_sports(self):
-        self.hover_and_click(self.HOBBIES_SPORTS_CHECKBOX)
+    @allure.step("Set hobbies to {hobbies}")
+    def set_hobbies(self, hobbies):
+        for hobby in hobbies:
+            self.hover_and_click(self._get_hobby_locator(hobby))
 
         return self
 
-    @allure.step("Set hobbies to sports")
-    def set_hobbies_reading(self):
-        self.hover_and_click(self.HOBBIES_READING_CHECKBOX)
+    @allure.step("Modal title should be {title}")
+    def assert_modal_title(self, title):
+        assert title == self.get_element(self.MODAL_WINDOW_TITLE).text, f"Title is not equal to {title}"
 
         return self
 
-    @allure.step("Set hobbies to sports")
-    def set_hobbies_music(self):
-        self.hover_and_click(self.HOBBIES_MUSIC_CHECKBOX)
+    @allure.step("Compare modal window user data with test user data {user_data}")
+    def assert_table_values(self, user_data):
+        result_table_dict = WebTableElement(self.browser, self.MODAL_WINDOW_TABLE).get_dict()
+        mapped_user_data = map_user_data(user_data)
+
+        for key, value in result_table_dict.items():
+            assert value == mapped_user_data[key], f"{value} is not equal to {mapped_user_data[key]}"
 
         return self
