@@ -1,5 +1,5 @@
-# Практикум SDET: тестовое задание
-Registration test with registartion form page based on 
+# SDET practicum: test task
+Student Registration Form test located at:
 https://demoqa.com/automation-practice-form
 
 # Installation
@@ -12,7 +12,7 @@ https://demoqa.com/automation-practice-form
 This installs all required modules.
 
 # Running the Tests
-To run tests with default settings defined in "pytest.ini" execute the following command:
+To run the tests with default settings defined in the "pytest.ini" run the following command:
 
 ``python -m pytest``
 
