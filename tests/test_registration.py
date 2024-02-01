@@ -5,6 +5,7 @@ from configuration import TEST_DATA_PATH
 from src.pages.student_registration import StudentRegistrationForm
 
 
+@allure.feature("Registration")
 class TestRegistration:
     @allure.title("Test student registration")
     def test_student_registration(self, browser, remove_ads, scroll_down, user_data):

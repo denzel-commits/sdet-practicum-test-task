@@ -50,10 +50,12 @@ class BasePage:
 
     @allure.step
     def set_file(self, locator, abs_path_to_file):
+        self.logger.info(f"{self.class_name}: set file path in {locator} to {abs_path_to_file}")
         self.get_element(locator).send_keys(abs_path_to_file)
 
     @allure.step
     def set_select_field_by_value(self, locator, value):
+        self.logger.info(f"{self.class_name}: Select {value} from {locator} select web element")
         select = Select(self.get_element(locator))
         select.select_by_value(str(value))
 

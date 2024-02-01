@@ -14,11 +14,11 @@ from test_data.constants import GENDERS, SUBJECTS, STATE_AND_CITY, HOBBIES
 
 
 def pytest_addoption(parser):
-    parser.addoption("--browser", choices=["chrome", "firefox"])
+    parser.addoption("--browser", choices=["chrome", "firefox"], default="chrome")
     parser.addoption("--base_url", help="Base request URL")
     parser.addoption("--tolerance", type=int, default=5, help="Timeout value")
     parser.addoption("--headless", action="store_true")
-    parser.addoption("--logging_level", default="WARNING")
+    parser.addoption("--logging_level", choices=["INFO", "WARNING", "ERROR"], default="WARNING")
 
 
 @pytest.fixture()
@@ -96,7 +96,7 @@ def browser(request, logger):
 
     @allure.step("Go to {path}")
     def navigate_to(path=""):
-        logger.info(f"{request.node.name} Go to {base_url} {path}")
+        logger.info(f"{request.node.name} Go to {base_url}{path}")
         driver.get(base_url + path)
 
     driver.open = navigate_to
