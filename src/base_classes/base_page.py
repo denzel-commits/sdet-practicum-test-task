@@ -1,5 +1,4 @@
 import time
-
 import allure
 from selenium.webdriver import ActionChains, Keys
 from selenium.webdriver.support.select import Select
@@ -20,9 +19,9 @@ class BasePage:
         timeout = self.browser.tolerance if not timeout else timeout
         try:
             return WebDriverWait(self.browser, timeout=timeout).until(EC.visibility_of_element_located(locator))
-        except TimeoutException:
+        except TimeoutException as exc:
             self.logger.error(f"{self.class_name}: WebElement {str(locator)} is not visible", exc_info=True)
-            raise AssertionError(f"WebElement {str(locator)} is not visible")
+            raise AssertionError(f"WebElement {str(locator)} is not visible") from exc
 
     @allure.step
     def get_element_from_element(self, parent_locator, child_locator):

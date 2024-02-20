@@ -109,7 +109,7 @@ class StudentRegistrationForm(BasePage):
 
         return self
 
-    @allure.step("Set last name field to {email}")
+    @allure.step("Set email field to {email}")
     def set_email(self, email):
         self.set_field(self.EMAIL_INPUT, email)
 

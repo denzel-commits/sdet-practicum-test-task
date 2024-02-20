@@ -1,6 +1,5 @@
 import os
 import allure
-
 from configuration import TEST_DATA_PATH
 from src.pages.student_registration import StudentRegistrationForm
 
