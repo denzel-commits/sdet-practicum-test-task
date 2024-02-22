@@ -13,6 +13,10 @@ class BasePage:
         self.logger = browser.logger
         self.class_name = type(self).__name__
 
+    @staticmethod
+    def format_locator(locator, *values):
+        return locator[0], locator[1].format(*values)
+
     @allure.step
     def get_element(self, locator, timeout=0):
         self.logger.info(f"{self.class_name}: Getting visible element by {str(locator)}")

@@ -10,62 +10,34 @@ class StudentRegistrationForm(BasePage):
     LAST_NAME_INPUT = (By.ID, "lastName")
     EMAIL_INPUT = (By.CSS_SELECTOR, "#userEmail")
 
+    GENDER_RADIO = (By.XPATH, "//input[@name='gender' and @value='{}']//following-sibling::label")
+
     MOBILE_INPUT = (By.CSS_SELECTOR, "#userNumber")
 
     DOB_DATE_PICKER_INPUT = (By.CSS_SELECTOR, "#dateOfBirthInput")
 
     DOB_MONTH_SELECT = (By.XPATH, "//div[@class='react-datepicker']//select[@class='react-datepicker__month-select']")
     DOB_YEAR_SELECT = (By.XPATH, "//div[@class='react-datepicker']//select[@class='react-datepicker__year-select']")
+    DOB_DATE_ITEM = (By.XPATH, "//div[contains(@class, 'react-datepicker__day')][text()='{}']")
 
     SUBJECTS_INPUT = (By.CSS_SELECTOR, "#subjectsInput")
 
-    HOBBIES_SPORTS_CHECKBOX = (By.XPATH, "//input[@id='hobbies-checkbox-1']//following-sibling::label")
-    HOBBIES_READING_CHECKBOX = (By.XPATH, "//input[@id='hobbies-checkbox-2']//following-sibling::label")
-    HOBBIES_MUSIC_CHECKBOX = (By.XPATH, "//input[@id='hobbies-checkbox-3']//following-sibling::label")
+    HOBBIES_CHECKBOX = (By.XPATH, "//input[contains(@id, 'hobbies-checkbox')]//following-sibling::label[text() = '{}']")
 
     PICTURE_FILE_INPUT = (By.XPATH, "//input[@type='file' and @id='uploadPicture']")
 
     ADDRESS_INPUT = (By.CSS_SELECTOR, "#currentAddress")
 
     STATE_SELECT = (By.CSS_SELECTOR, "#stateCity-wrapper div#state")
+    STATE_SELECT_ITEM = (By.XPATH, "//div[@class=' css-26l3qy-menu']//div[text()='{}']")
+
     CITY_SELECT = (By.CSS_SELECTOR, "#stateCity-wrapper div#city")
+    CITY_SELECT_ITEM = (By.XPATH, "//div[@class=' css-26l3qy-menu']//div[text()='{}']")
 
     SUBMIT_BUTTON = (By.CSS_SELECTOR, "button#submit")
 
     MODAL_WINDOW_TITLE = (By.XPATH, "//div[contains(@class, 'modal-title')]")
     MODAL_WINDOW_TABLE = (By.XPATH, "//div[@class='modal-body']//table[contains(@class, 'table')]")
-
-    @allure.step
-    def _get_date_locator(self, date):
-        if date not in range(1, 32):
-            self.browser.logger.error(f"Date should be from 1 to 31, but {date} given")
-            raise ValueError(f"Date should be from 1 to 31, but {date} given")
-
-        return (By.XPATH,
-                f"//div[contains(@class, 'react-datepicker__day')][text()='{date}']")
-
-    @staticmethod
-    def _get_gender_locator(gender):
-        return (By.XPATH,
-                f"//input[@name='gender' and @value='{gender.capitalize()}']//following-sibling::label")
-
-    def _get_hobby_locator(self, hobby):
-        hobbies_map = {
-            "Sports": self.HOBBIES_SPORTS_CHECKBOX,
-            "Reading": self.HOBBIES_READING_CHECKBOX,
-            "Music": self.HOBBIES_MUSIC_CHECKBOX
-        }
-        return hobbies_map[hobby]
-
-    @staticmethod
-    def _get_state_locator(state):
-        return (By.XPATH,
-                f"//div[@class=' css-26l3qy-menu']//div[text()='{state}']")
-
-    @staticmethod
-    def _get_city_locator(city):
-        return (By.XPATH,
-                f"//div[@class=' css-26l3qy-menu']//div[text()='{city}']")
 
     @allure.step
     def click_submit_button(self):
@@ -76,14 +48,14 @@ class StudentRegistrationForm(BasePage):
     @allure.step("Set state field to {state}")
     def set_state(self, state):
         self.get_element(self.STATE_SELECT).click()
-        self.hover_and_click(self._get_state_locator(state))
+        self.hover_and_click(self.format_locator(self.STATE_SELECT_ITEM, state))
 
         return self
 
     @allure.step("Set city field to {city}")
     def set_city(self, city):
         self.get_element(self.CITY_SELECT).click()
-        self.hover_and_click(self._get_city_locator(city))
+        self.hover_and_click(self.format_locator(self.CITY_SELECT_ITEM, city))
 
         return self
 
@@ -93,7 +65,7 @@ class StudentRegistrationForm(BasePage):
 
         self.set_select_field_by_value(self.DOB_MONTH_SELECT, (month-1))
         self.set_select_field_by_value(self.DOB_YEAR_SELECT, year)
-        self.hover_and_click(self._get_date_locator(date))
+        self.hover_and_click(self.format_locator(self.DOB_DATE_ITEM, date))
 
         return self
 
@@ -117,7 +89,7 @@ class StudentRegistrationForm(BasePage):
 
     @allure.step("Set gender radio to {gender}")
     def set_gender(self, gender):
-        self.hover_and_click(self._get_gender_locator(gender))
+        self.hover_and_click(self.format_locator(self.GENDER_RADIO, gender.capitalize()))
 
         return self
 
@@ -150,7 +122,7 @@ class StudentRegistrationForm(BasePage):
     @allure.step("Set hobbies to {hobbies}")
     def set_hobbies(self, hobbies):
         for hobby in hobbies:
-            self.hover_and_click(self._get_hobby_locator(hobby))
+            self.hover_and_click(self.format_locator(self.HOBBIES_CHECKBOX, hobby))
 
         return self
 

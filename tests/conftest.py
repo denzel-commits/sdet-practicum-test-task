@@ -7,9 +7,9 @@ import allure
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
-
 from src.helpers.logger import Logger
-from src.helpers.utilities import get_random_string, get_random_email, get_random_number, get_random_date
+from src.helpers.utilities import get_random_string, get_random_email, \
+                                  get_random_number, get_random_date
 from test_data.constants import GENDERS, SUBJECTS, STATE_AND_CITY, HOBBIES
 
 
